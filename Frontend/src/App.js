@@ -1,90 +1,123 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./App.css";
 
 function App() {
   const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState('');
+  const [newTitle, setNewTitle] = useState("");
+  const [newTask, setNewTask] = useState("");
   const [editingTaskId, setEditingTaskId] = useState(null);
-  const [editingTaskText, setEditingTaskText] = useState('');
+  const [editingTaskText, setEditingTaskText] = useState("");
+  const [editingTaskTitle, setEditingTaskTitle] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchTasks();
   }, []);
 
-  // Function to fetch tasks from the backend
   const fetchTasks = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/tasks');
+      const response = await axios.get("http://localhost:5000/get-tasks");
       setTasks(response.data);
     } catch (error) {
-      console.error('Error fetching tasks:', error);
+      console.error("Error fetching tasks:", error);
     }
   };
 
-  // Function to add a new task
   const addTask = async () => {
-    if (newTask.trim() === '') return;
+    if (newTask.trim() === "" || newTitle.trim() === "") return;
     try {
-      const response = await axios.post('http://localhost:5000/tasks', { task: newTask.trim() });
+      const response = await axios.post("http://localhost:5000/add-task", {
+        title: newTitle.trim(),
+        task: newTask.trim(),
+      });
       setTasks([...tasks, response.data]);
-      setNewTask('');
+      setNewTask("");
+      setNewTitle("");
     } catch (error) {
-      console.error('Error adding task:', error);
+      console.error("Error adding task:", error);
     }
   };
 
-  // Function to delete a task
   const deleteTask = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/tasks/${id}`);
+      await axios.delete(`http://localhost:5000/delete-task/${id}`);
       setTasks(tasks.filter((task) => task.id !== id));
     } catch (error) {
-      console.error('Error deleting task:', error);
+      console.error("Error deleting task:", error);
     }
   };
 
-  // Function to delete all tasks
   const deleteAllTasks = async () => {
     try {
-      await axios.delete(`http://localhost:5000/tasks`);
-      setTasks([]); // Clear the tasks from the state
+      await axios.delete(`http://localhost:5000/delete-tasks`);
+      setTasks([]);
     } catch (error) {
-      console.error('Error deleting all tasks:', error);
+      console.error("Error deleting all tasks:", error);
     }
   };
 
-  // Function to start editing a task
-  const startEditingTask = (id, currentText) => {
+  const startEditingTask = (id, currentText, currentTitle) => {
     setEditingTaskId(id);
     setEditingTaskText(currentText);
+    setEditingTaskTitle(currentTitle);
   };
 
-  // Function to update the task in the backend
   const saveTask = async (id) => {
-    if (editingTaskText.trim() === '') return;
+    if (editingTaskText.trim() === "" || editingTaskTitle.trim() === "") return;
+    const currentTask = tasks.find((task) => task.id === id);
     try {
-      await axios.put(`http://localhost:5000/tasks/${id}`, {
+      await axios.put(`http://localhost:5000/edit-task/${id}`, {
+        title: editingTaskTitle.trim(),
         task: editingTaskText.trim(),
-        status: false, // Default status, modify as needed
+        status: currentTask.status,
       });
       setTasks(
         tasks.map((task) =>
-          task.id === id ? { ...task, task: editingTaskText.trim() } : task
+          task.id === id
+            ? {
+                ...task,
+                title: editingTaskTitle.trim(),
+                task: editingTaskText.trim(),
+              }
+            : task
         )
       );
       setEditingTaskId(null);
-      setEditingTaskText('');
+      setEditingTaskText("");
+      setEditingTaskTitle("");
     } catch (error) {
-      console.error('Error updating task:', error);
+      console.error("Error updating task:", error);
     }
   };
 
-  // Function to cancel editing
   const cancelEditing = () => {
     setEditingTaskId(null);
-    setEditingTaskText('');
+    setEditingTaskText("");
+    setEditingTaskTitle("");
   };
+
+  const toggleTaskStatus = async (id, currentStatus) => {
+    try {
+      const newStatus = !currentStatus;
+      await axios.put(`http://localhost:5000/edit-task/${id}`, {
+        title: tasks.find((task) => task.id === id).title,
+        task: tasks.find((task) => task.id === id).task,
+        status: newStatus,
+      });
+      setTasks(
+        tasks.map((task) =>
+          task.id === id ? { ...task, status: newStatus } : task
+        )
+      );
+    } catch (error) {
+      console.error("Error toggling task status:", error);
+    }
+  };
+
+  const filteredTasks = tasks.filter((task) =>
+    task.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="App">
@@ -92,11 +125,22 @@ function App() {
       <div className="add-task">
         <input
           type="text"
+          placeholder="Enter task title"
+          value={newTitle}
+          onChange={(e) => setNewTitle(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === "Enter") {
+              addTask();
+            }
+          }}
+        />
+        <input
+          type="text"
           placeholder="Enter a new task"
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
           onKeyPress={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === "Enter") {
               addTask();
             }
           }}
@@ -104,23 +148,51 @@ function App() {
         <button onClick={addTask}>Add Task</button>
       </div>
 
-      {tasks.length > 0 && (
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search tasks by title"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      {filteredTasks.length > 0 && (
         <div className="tasks-header">
           <h2>Your Tasks</h2>
         </div>
       )}
 
       <ul className="tasks-list">
-        {tasks.map((task) => (
+        {filteredTasks.map((task) => (
           <li key={task.id} className="task-item">
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={task.status}
+                onChange={() => toggleTaskStatus(task.id, task.status)}
+                className="toggle-input"
+              />
+              <span className="toggle-slider"></span>
+            </label>
             {editingTaskId === task.id ? (
               <>
+                <input
+                  type="text"
+                  value={editingTaskTitle}
+                  onChange={(e) => setEditingTaskTitle(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      saveTask(task.id);
+                    }
+                  }}
+                />
                 <input
                   type="text"
                   value={editingTaskText}
                   onChange={(e) => setEditingTaskText(e.target.value)}
                   onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === "Enter") {
                       saveTask(task.id);
                     }
                   }}
@@ -130,9 +202,16 @@ function App() {
               </>
             ) : (
               <>
-                <span>{task.task}</span>
+                <span className={`task-text ${task.status ? "completed" : ""}`}>
+                  {task.title}: {task.task}
+                </span>
+
                 <div className="task-actions">
-                  <button onClick={() => startEditingTask(task.id, task.task)}>
+                  <button
+                    onClick={() =>
+                      startEditingTask(task.id, task.task, task.title)
+                    }
+                  >
                     Edit
                   </button>
                   <button onClick={() => deleteTask(task.id)}>Delete</button>
@@ -143,7 +222,7 @@ function App() {
         ))}
       </ul>
 
-      {tasks.length > 0 && (
+      {filteredTasks.length > 0 && (
         <button onClick={deleteAllTasks} className="delete-all-button">
           Delete All Tasks
         </button>
