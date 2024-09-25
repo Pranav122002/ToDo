@@ -1,14 +1,22 @@
 from flask import Flask, request, jsonify
 import psycopg2
 from flask_cors import CORS
+from urllib.parse import urlparse
 
 app = Flask(__name__)
 CORS(app)
 
+DATABASE_URL = "postgresql://tododb_63r8_user:WcDoiwOH3Mk9Vy9BSPp5u8ynMuBh41iR@dpg-crq4crij1k6c738b5ep0-a.singapore-postgres.render.com/tododb_63r8"
 
 def get_db_connection():
+    # Parse the DATABASE_URL to get connection parameters
+    result = urlparse(DATABASE_URL)
     conn = psycopg2.connect(
-        host="localhost", database="postgres", user="postgres", password="asdf"
+        dbname=result.path[1:], 
+        user=result.username,
+        password=result.password,
+        host=result.hostname,
+        port=result.port
     )
     return conn
 
