@@ -22,7 +22,8 @@ def create_tasks_table():
             id SERIAL PRIMARY KEY,
             title VARCHAR(255) NOT NULL,  
             task VARCHAR(255) NOT NULL,
-            status BOOLEAN NOT NULL DEFAULT FALSE
+            status BOOLEAN NOT NULL DEFAULT FALSE,
+            importance BOOLEAN NOT NULL DEFAULT FALSE
         );
     """
     )
@@ -44,7 +45,13 @@ def get_tasks():
     conn.close()
 
     task_list = [
-        {"id": row[0], "title": row[1], "task": row[2], "status": row[3]}
+        {
+            "id": row[0],
+            "title": row[1],
+            "task": row[2],
+            "status": row[3],
+            "importance": row[4],
+        }
         for row in tasks
     ]
     return jsonify(task_list)
@@ -55,12 +62,13 @@ def add_task():
     task_data = request.get_json()
     new_title = task_data["title"]
     new_task = task_data["task"]
+    importance = task_data.get("importance", False)
 
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO tasks (title, task, status) VALUES (%s, %s, %s) RETURNING id;",
-        (new_title, new_task, False),
+        "INSERT INTO tasks (title, task, status, importance) VALUES (%s, %s, %s, %s) RETURNING id;",
+        (new_title, new_task, False, importance),
     )
     new_id = cur.fetchone()[0]
     conn.commit()
@@ -68,7 +76,13 @@ def add_task():
     conn.close()
 
     return jsonify(
-        {"id": new_id, "title": new_title, "task": new_task, "status": False}
+        {
+            "id": new_id,
+            "title": new_title,
+            "task": new_task,
+            "status": False,
+            "importance": importance,
+        }
     )
 
 
@@ -102,12 +116,13 @@ def edit_task(task_id):
     updated_title = task_data["title"]
     updated_task = task_data["task"]
     updated_status = task_data["status"]
+    updated_importance = task_data["importance"]
 
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "UPDATE tasks SET title = %s, task = %s, status = %s WHERE id = %s;",
-        (updated_title, updated_task, updated_status, task_id),
+        "UPDATE tasks SET title = %s, task = %s, status = %s, importance = %s WHERE id = %s;",
+        (updated_title, updated_task, updated_status, updated_importance, task_id),
     )
     conn.commit()
     cur.close()

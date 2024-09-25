@@ -39,6 +39,25 @@ function App() {
     }
   };
 
+  const toggleTaskImportance = async (id, currentImportance) => {
+    try {
+      const newImportance = !currentImportance;
+      await axios.put(`http://localhost:5000/edit-task/${id}`, {
+        title: tasks.find((task) => task.id === id).title,
+        task: tasks.find((task) => task.id === id).task,
+        status: tasks.find((task) => task.id === id).status,
+        importance: newImportance,
+      });
+      setTasks(
+        tasks.map((task) =>
+          task.id === id ? { ...task, importance: newImportance } : task
+        )
+      );
+    } catch (error) {
+      console.error("Error toggling task importance:", error);
+    }
+  };
+
   const deleteTask = async (id) => {
     try {
       await axios.delete(`http://localhost:5000/delete-task/${id}`);
@@ -202,7 +221,11 @@ function App() {
               </>
             ) : (
               <>
-                <span className={`task-text ${task.status ? "completed" : ""}`}>
+                <span
+                  className={`task-text ${task.status ? "completed" : ""} ${
+                    task.importance ? "importance" : ""
+                  }`}
+                >
                   {task.title}: {task.task}
                 </span>
 
@@ -215,6 +238,13 @@ function App() {
                     Edit
                   </button>
                   <button onClick={() => deleteTask(task.id)}>Delete</button>
+                  <button
+                    onClick={() =>
+                      toggleTaskImportance(task.id, task.importance)
+                    }
+                  >
+                    {task.importance ? "Unmark Important" : "Mark as Important"}
+                  </button>
                 </div>
               </>
             )}
