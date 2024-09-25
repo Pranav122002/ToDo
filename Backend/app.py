@@ -86,6 +86,21 @@ def add_task():
     )
 
 
+@app.route("/important-tasks", methods=["GET"])
+def get_important_tasks():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM tasks WHERE important = TRUE;")
+    tasks = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    task_list = [
+        {"id": row[0], "title": row[1], "task": row[2], "status": row[3], "important": row[4]}
+        for row in tasks
+    ]
+    return jsonify(task_list)
+
 @app.route("/delete-task/<int:task_id>", methods=["DELETE"])
 def delete_task(task_id):
     conn = get_db_connection()

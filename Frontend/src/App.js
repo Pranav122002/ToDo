@@ -10,6 +10,7 @@ function App() {
   const [editingTaskText, setEditingTaskText] = useState("");
   const [editingTaskTitle, setEditingTaskTitle] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showImportantTasks, setShowImportantTasks] = useState(false); // State for showing important tasks
 
   useEffect(() => {
     fetchTasks();
@@ -39,6 +40,24 @@ function App() {
     }
   };
 
+  const deleteTask = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/delete-task/${id}`);
+      setTasks(tasks.filter((task) => task.id !== id));
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
+  };
+
+  const deleteAllTasks = async () => {
+    try {
+      await axios.delete(`http://localhost:5000/delete-tasks`);
+      setTasks([]);
+    } catch (error) {
+      console.error("Error deleting all tasks:", error);
+    }
+  };
+
   const toggleTaskImportance = async (id, currentImportance) => {
     try {
       const newImportance = !currentImportance;
@@ -55,24 +74,6 @@ function App() {
       );
     } catch (error) {
       console.error("Error toggling task importance:", error);
-    }
-  };
-
-  const deleteTask = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5000/delete-task/${id}`);
-      setTasks(tasks.filter((task) => task.id !== id));
-    } catch (error) {
-      console.error("Error deleting task:", error);
-    }
-  };
-
-  const deleteAllTasks = async () => {
-    try {
-      await axios.delete(`http://localhost:5000/delete-tasks`);
-      setTasks([]);
-    } catch (error) {
-      console.error("Error deleting all tasks:", error);
     }
   };
 
@@ -137,6 +138,8 @@ function App() {
   const filteredTasks = tasks.filter((task) =>
     task.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const importantTasks = tasks.filter((task) => task.importance === true);
 
   return (
     <div className="App">
@@ -257,8 +260,30 @@ function App() {
           Delete All Tasks
         </button>
       )}
+
+      <button
+        onClick={() => setShowImportantTasks(!showImportantTasks)}
+        className="toggle-important-tasks-button"
+      >
+        {showImportantTasks ? "Hide Important Tasks" : "Show Important Tasks"}
+      </button>
+
+      {showImportantTasks && importantTasks.length > 0 && (
+        <div className="important-tasks-section">
+          <h2>Important Tasks</h2>
+          <ul className="important-tasks-list">
+            {importantTasks.map((task) => (
+              <li key={task.id} className="task-item">
+                <span className="task-text">
+                  {task.title}: {task.task}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
 
-export default App;
+export default App
