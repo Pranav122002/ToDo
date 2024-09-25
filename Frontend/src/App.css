@@ -1,231 +1,51 @@
-.App {
-  max-width: 600px;
-  margin: 50px auto;
-  padding: 20px;
-  text-align: center;
-  font-family: Arial, sans-serif;
-  background-color: #f9f9f9;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+body,
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
 }
 
-h1 {
-  color: #333;
+.container {
+    display: flex; /* Use Flexbox layout */
+    height: 100vh; /* Full height of the viewport */
 }
 
-.add-task {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
+.left-panel {
+    background-color: #f0f0f0; /* Light gray background for the left panel */
+    width: 20%; /* 20% width */
+    border-radius: 1rem; /* Rounded corners on the left panel */
+    display: flex;
+    align-items: center; /* Center content vertically */
+    justify-content: center; /* Center content horizontally */
 }
 
-.add-task input {
-  width: 70%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px 0 0 4px;
-  outline: none;
+.right-panel {
+    width: 80%; /* 80% width */
+    border-radius: 1rem; /* Rounded corners on the right panel */
+    display: flex;
+    align-items: center; /* Center content vertically */
+    justify-content: center; /* Center content horizontally */
 }
 
-.add-task button {
-  padding: 10px 20px;
-  border: none;
-  background-color: #28a745;
-  color: white;
-  cursor: pointer;
-  border-radius: 0 4px 4px 0;
+.inner-container {
+    display: grid; /* Use CSS Grid layout */
+    grid-template-columns: repeat(4, 1fr); /* 4 columns */
+    gap: 16px; /* Space between boxes */
+    width: 80%; /* Adjust width if needed */
+    height: 80%; /* Adjust height if needed */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 16px; /* Optional: padding inside the inner container */
+    border-radius: 1rem; /* Rounded corners for the inner container */
 }
 
-.add-task button:hover {
-  background-color: #218838;
-}
-
-.tasks-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.delete-all {
-  padding: 5px 10px;
-  border: none;
-  background-color: #dc3545;
-  color: white;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.delete-all:hover {
-  background-color: #c82333;
-}
-
-.tasks-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.task-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-
-.task-item:last-child {
-  border-bottom: none;
-}
-
-.task-actions button {
-  margin-left: 5px;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.task-actions button:first-child {
-  background-color: #007bff;
-  color: white;
-}
-
-.task-actions button:first-child:hover {
-  background-color: #0069d9;
-}
-
-.task-actions button:last-child {
-  background-color: #dc3545;
-  color: white;
-}
-
-.task-actions button:last-child:hover {
-  background-color: #c82333;
-}
-
-.task-item input[type="text"] {
-  width: 60%;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-}
-
-.task-item button {
-  margin-left: 5px;
-}
-
-/* Toggle switch */
-.toggle {
-  position: relative;
-  display: inline-block;
-  width: 34px;
-  height: 20px;
-}
-
-.toggle input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: 0.4s;
-  border-radius: 34px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 14px;
-  width: 14px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: #28a745;
-}
-
-input:checked + .slider:before {
-  transform: translateX(14px);
-}
-
-.delete-all-button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background-color: red;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-.delete-all-button:hover {
-  background-color: darkred;
-}
-
-.toggle-switch {
-  position: relative;
-  display: inline-block;
-  width: 40px;
-  height: 20px;
-  margin-right: 10px;
-}
-
-.toggle-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.toggle-slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: 0.4s;
-  border-radius: 20px;
-}
-
-.toggle-slider:before {
-  position: absolute;
-  content: "";
-  height: 13px;
-  width: 13px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-
-input:checked + .toggle-slider {
-  background-color: #4caf50;
-}
-
-input:checked + .toggle-slider:before {
-  transform: translateX(20px);
-}
-
-.task-text.completed {
-  text-decoration: line-through;
-  color: gray;
-}
-
-.task-text.important {
-  font-weight: bold;
-  color: red;
+.box {
+    background-color: white; /* Blue background for the boxes */
+    color: black; /* White text color */
+    border-radius: 1rem; /* Rounded corners for the boxes */
+    display: flex;
+    align-items: center; /* Center content vertically */
+    justify-content: center; /* Center content horizontally */
+    font-size: 20px; /* Font size for the box text */
+    height: 200px; /* Set a fixed height for boxes */
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 15px 25px, rgba(0, 0, 0, 0.05) 0px 5px 10px;
 }

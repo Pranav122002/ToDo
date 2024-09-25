@@ -142,148 +142,173 @@ function App() {
   const importantTasks = tasks.filter((task) => task.importance === true);
 
   return (
-    <div className="App">
-      <h1>To-Do Reminder App</h1>
-      <div className="add-task">
-        <input
-          type="text"
-          placeholder="Enter task title"
-          value={newTitle}
-          onChange={(e) => setNewTitle(e.target.value)}
-          onKeyPress={(e) => {
-            if (e.key === "Enter") {
-              addTask();
-            }
-          }}
-        />
-        <input
-          type="text"
-          placeholder="Enter a new task"
-          value={newTask}
-          onChange={(e) => setNewTask(e.target.value)}
-          onKeyPress={(e) => {
-            if (e.key === "Enter") {
-              addTask();
-            }
-          }}
-        />
-        <button onClick={addTask}>Add Task</button>
-      </div>
-
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Search tasks by title"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-
-      {filteredTasks.length > 0 && (
-        <div className="tasks-header">
-          <h2>Your Tasks</h2>
+    <div className="container">
+      <div className="left-panel"></div>
+      <div className="right-panel">
+        <div className="inner-container">
+          <div className="box"></div>
+          <div className="box"></div>
+          <div className="box"></div>
+          <div className="box"></div>
+          <div className="box"></div>
+          <div className="box"></div>
+          <div className="box"></div>
+          <div className="box"></div>
+          <div className="box"></div>
+          <div className="box"></div>
+          <div className="box"></div>
+          <div className="box"></div>
+          <div className="box"></div>
+          <div className="box"></div>
+          <div className="box"></div>
+          <div className="box"></div>
+          <div className="box"></div>
         </div>
-      )}
-
-      <ul className="tasks-list">
-        {filteredTasks.map((task) => (
-          <li key={task.id} className="task-item">
-            <label className="toggle-switch">
-              <input
-                type="checkbox"
-                checked={task.status}
-                onChange={() => toggleTaskStatus(task.id, task.status)}
-                className="toggle-input"
-              />
-              <span className="toggle-slider"></span>
-            </label>
-            {editingTaskId === task.id ? (
-              <>
-                <input
-                  type="text"
-                  value={editingTaskTitle}
-                  onChange={(e) => setEditingTaskTitle(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      saveTask(task.id);
-                    }
-                  }}
-                />
-                <input
-                  type="text"
-                  value={editingTaskText}
-                  onChange={(e) => setEditingTaskText(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      saveTask(task.id);
-                    }
-                  }}
-                />
-                <button onClick={() => saveTask(task.id)}>Save</button>
-                <button onClick={cancelEditing}>Cancel</button>
-              </>
-            ) : (
-              <>
-                <span
-                  className={`task-text ${task.status ? "completed" : ""} ${
-                    task.importance ? "importance" : ""
-                  }`}
-                >
-                  {task.title}: {task.task}
-                </span>
-
-                <div className="task-actions">
-                  <button
-                    onClick={() =>
-                      startEditingTask(task.id, task.task, task.title)
-                    }
-                  >
-                    Edit
-                  </button>
-                  <button onClick={() => deleteTask(task.id)}>Delete</button>
-                  <button
-                    onClick={() =>
-                      toggleTaskImportance(task.id, task.importance)
-                    }
-                  >
-                    {task.importance ? "Unmark Important" : "Mark as Important"}
-                  </button>
-                </div>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
-
-      {filteredTasks.length > 0 && (
-        <button onClick={deleteAllTasks} className="delete-all-button">
-          Delete All Tasks
-        </button>
-      )}
-
-      <button
-        onClick={() => setShowImportantTasks(!showImportantTasks)}
-        className="toggle-important-tasks-button"
-      >
-        {showImportantTasks ? "Hide Important Tasks" : "Show Important Tasks"}
-      </button>
-
-      {showImportantTasks && importantTasks.length > 0 && (
-        <div className="important-tasks-section">
-          <h2>Important Tasks</h2>
-          <ul className="important-tasks-list">
-            {importantTasks.map((task) => (
-              <li key={task.id} className="task-item">
-                <span className="task-text">
-                  {task.title}: {task.task}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      </div>
     </div>
+
+    // <div className="App">
+    //   <h1>To-Do Reminder App</h1>
+    //   <div className="add-task">
+    //     <input
+    //       type="text"
+    //       placeholder="Enter task title"
+    //       value={newTitle}
+    //       onChange={(e) => setNewTitle(e.target.value)}
+    //       onKeyPress={(e) => {
+    //         if (e.key === "Enter") {
+    //           addTask();
+    //         }
+    //       }}
+    //     />
+    //     <input
+    //       type="text"
+    //       placeholder="Enter a new task"
+    //       value={newTask}
+    //       onChange={(e) => setNewTask(e.target.value)}
+    //       onKeyPress={(e) => {
+    //         if (e.key === "Enter") {
+    //           addTask();
+    //         }
+    //       }}
+    //     />
+    //     <button onClick={addTask}>Add Task</button>
+    //   </div>
+
+    //   <div className="search-bar">
+    //     <input
+    //       type="text"
+    //       placeholder="Search tasks by title"
+    //       value={searchQuery}
+    //       onChange={(e) => setSearchQuery(e.target.value)}
+    //     />
+    //   </div>
+
+    //   {filteredTasks.length > 0 && (
+    //     <div className="tasks-header">
+    //       <h2>Your Tasks</h2>
+    //     </div>
+    //   )}
+
+    //   <ul className="tasks-list">
+    //     {filteredTasks.map((task) => (
+    //       <li key={task.id} className="task-item">
+    //         <label className="toggle-switch">
+    //           <input
+    //             type="checkbox"
+    //             checked={task.status}
+    //             onChange={() => toggleTaskStatus(task.id, task.status)}
+    //             className="toggle-input"
+    //           />
+    //           <span className="toggle-slider"></span>
+    //         </label>
+    //         {editingTaskId === task.id ? (
+    //           <>
+    //             <input
+    //               type="text"
+    //               value={editingTaskTitle}
+    //               onChange={(e) => setEditingTaskTitle(e.target.value)}
+    //               onKeyPress={(e) => {
+    //                 if (e.key === "Enter") {
+    //                   saveTask(task.id);
+    //                 }
+    //               }}
+    //             />
+    //             <input
+    //               type="text"
+    //               value={editingTaskText}
+    //               onChange={(e) => setEditingTaskText(e.target.value)}
+    //               onKeyPress={(e) => {
+    //                 if (e.key === "Enter") {
+    //                   saveTask(task.id);
+    //                 }
+    //               }}
+    //             />
+    //             <button onClick={() => saveTask(task.id)}>Save</button>
+    //             <button onClick={cancelEditing}>Cancel</button>
+    //           </>
+    //         ) : (
+    //           <>
+    //             <span
+    //               className={`task-text ${task.status ? "completed" : ""} ${
+    //                 task.importance ? "importance" : ""
+    //               }`}
+    //             >
+    //               {task.title}: {task.task}
+    //             </span>
+
+    //             <div className="task-actions">
+    //               <button
+    //                 onClick={() =>
+    //                   startEditingTask(task.id, task.task, task.title)
+    //                 }
+    //               >
+    //                 Edit
+    //               </button>
+    //               <button onClick={() => deleteTask(task.id)}>Delete</button>
+    //               <button
+    //                 onClick={() =>
+    //                   toggleTaskImportance(task.id, task.importance)
+    //                 }
+    //               >
+    //                 {task.importance ? "Unmark Important" : "Mark as Important"}
+    //               </button>
+    //             </div>
+    //           </>
+    //         )}
+    //       </li>
+    //     ))}
+    //   </ul>
+
+    //   {filteredTasks.length > 0 && (
+    //     <button onClick={deleteAllTasks} className="delete-all-button">
+    //       Delete All Tasks
+    //     </button>
+    //   )}
+
+    //   <button
+    //     onClick={() => setShowImportantTasks(!showImportantTasks)}
+    //     className="toggle-important-tasks-button"
+    //   >
+    //     {showImportantTasks ? "Hide Important Tasks" : "Show Important Tasks"}
+    //   </button>
+
+    //   {showImportantTasks && importantTasks.length > 0 && (
+    //     <div className="important-tasks-section">
+    //       <h2>Important Tasks</h2>
+    //       <ul className="important-tasks-list">
+    //         {importantTasks.map((task) => (
+    //           <li key={task.id} className="task-item">
+    //             <span className="task-text">
+    //               {task.title}: {task.task}
+    //             </span>
+    //           </li>
+    //         ))}
+    //       </ul>
+    //     </div>
+    //   )}
+    // </div>
   );
 }
 
-export default App
+export default App;
