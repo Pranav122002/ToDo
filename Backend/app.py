@@ -2,9 +2,10 @@ from flask import Flask, request, jsonify
 import psycopg2
 from flask_cors import CORS
 from urllib.parse import urlparse
+import os 
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["https://todo-pranav.onrender.com"]) 
 
 DATABASE_URL = "postgresql://tododb_63r8_user:WcDoiwOH3Mk9Vy9BSPp5u8ynMuBh41iR@dpg-crq4crij1k6c738b5ep0-a.singapore-postgres.render.com/tododb_63r8"
 
@@ -125,4 +126,5 @@ def edit_task(task_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)
+
