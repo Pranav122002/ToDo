@@ -11,13 +11,15 @@ function App() {
   const [editingTaskTitle, setEditingTaskTitle] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const BASE_URL = "https://todo-lbni.onrender.com";
+
   useEffect(() => {
     fetchTasks();
   }, []);
 
   const fetchTasks = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/get-tasks");
+      const response = await axios.get(`${BASE_URL}/get-tasks`);
       setTasks(response.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
@@ -27,7 +29,7 @@ function App() {
   const addTask = async () => {
     if (newTask.trim() === "" || newTitle.trim() === "") return;
     try {
-      const response = await axios.post("http://localhost:5000/add-task", {
+      const response = await axios.post(`${BASE_URL}/add-task`, {
         title: newTitle.trim(),
         task: newTask.trim(),
       });
@@ -41,7 +43,7 @@ function App() {
 
   const deleteTask = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/delete-task/${id}`);
+      await axios.delete(`${BASE_URL}/delete-task/${id}`);
       setTasks(tasks.filter((task) => task.id !== id));
     } catch (error) {
       console.error("Error deleting task:", error);
@@ -50,7 +52,7 @@ function App() {
 
   const deleteAllTasks = async () => {
     try {
-      await axios.delete(`http://localhost:5000/delete-tasks`);
+      await axios.delete(`${BASE_URL}/delete-tasks`);
       setTasks([]);
     } catch (error) {
       console.error("Error deleting all tasks:", error);
@@ -67,7 +69,7 @@ function App() {
     if (editingTaskText.trim() === "" || editingTaskTitle.trim() === "") return;
     const currentTask = tasks.find((task) => task.id === id);
     try {
-      await axios.put(`http://localhost:5000/edit-task/${id}`, {
+      await axios.put(`${BASE_URL}/edit-task/${id}`, {
         title: editingTaskTitle.trim(),
         task: editingTaskText.trim(),
         status: currentTask.status,
@@ -100,7 +102,7 @@ function App() {
   const toggleTaskStatus = async (id, currentStatus) => {
     try {
       const newStatus = !currentStatus;
-      await axios.put(`http://localhost:5000/edit-task/${id}`, {
+      await axios.put(`${BASE_URL}/edit-task/${id}`, {
         title: tasks.find((task) => task.id === id).title,
         task: tasks.find((task) => task.id === id).task,
         status: newStatus,
