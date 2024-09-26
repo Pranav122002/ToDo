@@ -202,8 +202,14 @@ function App() {
               ></i>
 
               <div className="task-details">
-                <p className="task-title">{task.title}</p>
-                <p className="task-description">{task.task}</p>
+                <p className={`task-title ${task.status ? "cut-off" : ""}`}>
+                  {task.title}
+                </p>
+                <p
+                  className={`task-description ${task.status ? "cut-off" : ""}`}
+                >
+                  {task.task}
+                </p>
               </div>
 
               <button

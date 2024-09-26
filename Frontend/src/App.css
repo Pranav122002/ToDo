@@ -7,6 +7,11 @@ html {
   height: 100%;
 }
 
+.cut-off {
+  text-decoration: line-through;
+  color: grey; 
+}
+
 .container {
   display: flex;
   height: 100vh;
