@@ -54,13 +54,15 @@ def get_tasks():
     cur.close()
     conn.close()
 
+    print(tasks)
+
     task_list = [
         {
-            "id": row[0],
-            "title": row[1],
-            "task": row[2],
-            "status": row[3],
-            "importance": row[4],
+            "id": row[0] if len(row) > 0 else None,
+            "title": row[1] if len(row) > 1 else None,
+            "task": row[2] if len(row) > 2 else None,
+            "status": row[3] if len(row) > 3 else None,
+            "importance": row[4] if len(row) > 4 else None,
         }
         for row in tasks
     ]
