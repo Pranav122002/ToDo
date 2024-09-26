@@ -33,7 +33,7 @@ def create_tasks_table():
             title VARCHAR(255) NOT NULL,  
             task VARCHAR(255) NOT NULL,
             status BOOLEAN NOT NULL DEFAULT FALSE,
-            importance BOOLEAN NOT NULL DEFAULT FALSE
+            importance BOOLEAN DEFAULT FALSE
         );
     """
     )
