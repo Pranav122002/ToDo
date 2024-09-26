@@ -188,6 +188,9 @@ function App() {
       <ul className="tasks-list">
         {filteredTasks.map((task) => (
           <li key={task.id} className="task-item">
+
+
+
             <label className="toggle-switch">
               <input
                 type="checkbox"
@@ -197,6 +200,9 @@ function App() {
               />
               <span className="toggle-slider"></span>
             </label>
+
+
+            
             {editingTaskId === task.id ? (
               <>
                 <input
@@ -282,8 +288,11 @@ function App() {
           </ul>
         </div>
       )}
+
+
+
     </div>
   );
 }
 
-export default App
+export default App;

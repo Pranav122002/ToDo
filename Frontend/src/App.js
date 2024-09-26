@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash, faPen } from "@fortawesome/free-solid-svg-icons";
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -10,7 +12,17 @@ function App() {
   const [editingTaskText, setEditingTaskText] = useState("");
   const [editingTaskTitle, setEditingTaskTitle] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [showImportantTasks, setShowImportantTasks] = useState(false); // State for showing important tasks
+  const [showImportantTasks, setShowImportantTasks] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditingModalOpen, setIsEditingModalOpen] = useState(false);
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   useEffect(() => {
     fetchTasks();
@@ -24,7 +36,6 @@ function App() {
       console.error("Error fetching tasks:", error);
     }
   };
-
   const addTask = async () => {
     if (newTask.trim() === "" || newTitle.trim() === "") return;
     try {
@@ -35,6 +46,7 @@ function App() {
       setTasks([...tasks, response.data]);
       setNewTask("");
       setNewTitle("");
+      closeModal();
     } catch (error) {
       console.error("Error adding task:", error);
     }
@@ -58,29 +70,17 @@ function App() {
     }
   };
 
-  const toggleTaskImportance = async (id, currentImportance) => {
-    try {
-      const newImportance = !currentImportance;
-      await axios.put(`http://localhost:5000/edit-task/${id}`, {
-        title: tasks.find((task) => task.id === id).title,
-        task: tasks.find((task) => task.id === id).task,
-        status: tasks.find((task) => task.id === id).status,
-        importance: newImportance,
-      });
-      setTasks(
-        tasks.map((task) =>
-          task.id === id ? { ...task, importance: newImportance } : task
-        )
-      );
-    } catch (error) {
-      console.error("Error toggling task importance:", error);
-    }
-  };
-
-  const startEditingTask = (id, currentText, currentTitle) => {
+  const openEditingModal = (id, currentTitle, currentText) => {
     setEditingTaskId(id);
-    setEditingTaskText(currentText);
     setEditingTaskTitle(currentTitle);
+    setEditingTaskText(currentText);
+    setIsEditingModalOpen(true);
+  };
+  const closeEditingModal = () => {
+    setIsEditingModalOpen(false);
+    setEditingTaskId(null);
+    setEditingTaskTitle("");
+    setEditingTaskText("");
   };
 
   const saveTask = async (id) => {
@@ -91,6 +91,7 @@ function App() {
         title: editingTaskTitle.trim(),
         task: editingTaskText.trim(),
         status: currentTask.status,
+        importance: currentTask.importance,
       });
       setTasks(
         tasks.map((task) =>
@@ -103,27 +104,21 @@ function App() {
             : task
         )
       );
-      setEditingTaskId(null);
-      setEditingTaskText("");
-      setEditingTaskTitle("");
+      closeEditingModal();
     } catch (error) {
       console.error("Error updating task:", error);
     }
   };
 
-  const cancelEditing = () => {
-    setEditingTaskId(null);
-    setEditingTaskText("");
-    setEditingTaskTitle("");
-  };
-
   const toggleTaskStatus = async (id, currentStatus) => {
     try {
+      const currentTask = tasks.find((task) => task.id === id);
       const newStatus = !currentStatus;
       await axios.put(`http://localhost:5000/edit-task/${id}`, {
-        title: tasks.find((task) => task.id === id).title,
-        task: tasks.find((task) => task.id === id).task,
+        title: currentTask.title,
+        task: currentTask.task,
         status: newStatus,
+        importance: currentTask.importance,
       });
       setTasks(
         tasks.map((task) =>
@@ -141,173 +136,181 @@ function App() {
 
   const importantTasks = tasks.filter((task) => task.importance === true);
 
+  const toggleStar = async (id) => {
+    try {
+      const currentTask = tasks.find((task) => task.id === id);
+      const newImportance = !currentTask.importance;
+
+      await axios.put(`http://localhost:5000/edit-task/${id}`, {
+        title: currentTask.title,
+        task: currentTask.task,
+        status: currentTask.status,
+        importance: newImportance,
+      });
+
+      setTasks(
+        tasks.map((task) =>
+          task.id === id ? { ...task, importance: newImportance } : task
+        )
+      );
+    } catch (error) {
+      console.error("Error toggling task importance:", error);
+    }
+  };
+
   return (
     <div className="container">
-      <div className="left-panel"></div>
-      <div className="right-panel">
-        <div className="inner-container">
-          <div className="box"></div>
-          <div className="box"></div>
-          <div className="box"></div>
-          <div className="box"></div>
-          <div className="box"></div>
-          <div className="box"></div>
-          <div className="box"></div>
-          <div className="box"></div>
-          <div className="box"></div>
-          <div className="box"></div>
-          <div className="box"></div>
-          <div className="box"></div>
-          <div className="box"></div>
-          <div className="box"></div>
-          <div className="box"></div>
-          <div className="box"></div>
-          <div className="box"></div>
+      <div className="left-panel">
+        <h2 className="todo-heading">ToDo</h2>{" "}
+        <div className="button-container">
+          <button className="todo-button" onClick={openModal}>
+            Add Task
+          </button>
+          <button
+            className="todo-button"
+            onClick={() => setShowImportantTasks(!showImportantTasks)}
+          >
+            {showImportantTasks ? "Show All Tasks" : "View Important Tasks"}
+          </button>
+          <button className="todo-button" onClick={deleteAllTasks}>
+            Delete All Tasks
+          </button>
         </div>
       </div>
+
+      <div className="right-panel">
+        <h2 className="tasks-heading">My Tasks</h2>
+
+        <input
+          type="text"
+          className="search-bar"
+          placeholder="Search tasks by title"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+
+        <div className="inner-container">
+          {(showImportantTasks ? importantTasks : filteredTasks).map((task) => (
+            <div className="box" key={task.id}>
+              <i
+                className={`star fas fa-star ${
+                  task.importance ? "filled" : ""
+                }`}
+                onClick={() => toggleStar(task.id)}
+              ></i>
+
+              <div className="task-details">
+                <p className="task-title">{task.title}</p>
+                <p className="task-description">{task.task}</p>
+              </div>
+
+              <button
+                className="pencil-icon"
+                onClick={() => openEditingModal(task.id, task.title, task.task)}
+              >
+                <FontAwesomeIcon icon={faPen} />
+              </button>
+
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={task.status}
+                  onChange={() => {
+                    toggleTaskStatus(task.id, task.status);
+                  }}
+                  className="toggle-input"
+                />
+                <span className="toggle-slider"></span>
+              </label>
+
+              <button
+                className="delete-button"
+                onClick={() => deleteTask(task.id)}
+              >
+                <FontAwesomeIcon icon={faTrash} />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {isModalOpen && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Add New Task</h2>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                addTask();
+              }}
+            >
+              <input
+                type="text"
+                placeholder="Enter task title"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    addTask();
+                  }
+                }}
+              />
+
+              <input
+                type="text"
+                placeholder="Enter a new task"
+                value={newTask}
+                onChange={(e) => setNewTask(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    addTask();
+                  }
+                }}
+              />
+
+              <button type="submit">Add Task</button>
+
+              <button type="button" onClick={closeModal}>
+                Close
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isEditingModalOpen && (
+        <div className="modal-overlay" onClick={closeEditingModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Edit Task</h2>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                saveTask(editingTaskId);
+              }}
+            >
+              <input
+                type="text"
+                placeholder="Edit task title"
+                value={editingTaskTitle}
+                onChange={(e) => setEditingTaskTitle(e.target.value)}
+              />
+
+              <input
+                type="text"
+                placeholder="Edit task description"
+                value={editingTaskText}
+                onChange={(e) => setEditingTaskText(e.target.value)}
+              />
+
+              <button type="submit">Save Changes</button>
+              <button type="button" onClick={closeEditingModal}>
+                Close
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
-
-    // <div className="App">
-    //   <h1>To-Do Reminder App</h1>
-    //   <div className="add-task">
-    //     <input
-    //       type="text"
-    //       placeholder="Enter task title"
-    //       value={newTitle}
-    //       onChange={(e) => setNewTitle(e.target.value)}
-    //       onKeyPress={(e) => {
-    //         if (e.key === "Enter") {
-    //           addTask();
-    //         }
-    //       }}
-    //     />
-    //     <input
-    //       type="text"
-    //       placeholder="Enter a new task"
-    //       value={newTask}
-    //       onChange={(e) => setNewTask(e.target.value)}
-    //       onKeyPress={(e) => {
-    //         if (e.key === "Enter") {
-    //           addTask();
-    //         }
-    //       }}
-    //     />
-    //     <button onClick={addTask}>Add Task</button>
-    //   </div>
-
-    //   <div className="search-bar">
-    //     <input
-    //       type="text"
-    //       placeholder="Search tasks by title"
-    //       value={searchQuery}
-    //       onChange={(e) => setSearchQuery(e.target.value)}
-    //     />
-    //   </div>
-
-    //   {filteredTasks.length > 0 && (
-    //     <div className="tasks-header">
-    //       <h2>Your Tasks</h2>
-    //     </div>
-    //   )}
-
-    //   <ul className="tasks-list">
-    //     {filteredTasks.map((task) => (
-    //       <li key={task.id} className="task-item">
-    //         <label className="toggle-switch">
-    //           <input
-    //             type="checkbox"
-    //             checked={task.status}
-    //             onChange={() => toggleTaskStatus(task.id, task.status)}
-    //             className="toggle-input"
-    //           />
-    //           <span className="toggle-slider"></span>
-    //         </label>
-    //         {editingTaskId === task.id ? (
-    //           <>
-    //             <input
-    //               type="text"
-    //               value={editingTaskTitle}
-    //               onChange={(e) => setEditingTaskTitle(e.target.value)}
-    //               onKeyPress={(e) => {
-    //                 if (e.key === "Enter") {
-    //                   saveTask(task.id);
-    //                 }
-    //               }}
-    //             />
-    //             <input
-    //               type="text"
-    //               value={editingTaskText}
-    //               onChange={(e) => setEditingTaskText(e.target.value)}
-    //               onKeyPress={(e) => {
-    //                 if (e.key === "Enter") {
-    //                   saveTask(task.id);
-    //                 }
-    //               }}
-    //             />
-    //             <button onClick={() => saveTask(task.id)}>Save</button>
-    //             <button onClick={cancelEditing}>Cancel</button>
-    //           </>
-    //         ) : (
-    //           <>
-    //             <span
-    //               className={`task-text ${task.status ? "completed" : ""} ${
-    //                 task.importance ? "importance" : ""
-    //               }`}
-    //             >
-    //               {task.title}: {task.task}
-    //             </span>
-
-    //             <div className="task-actions">
-    //               <button
-    //                 onClick={() =>
-    //                   startEditingTask(task.id, task.task, task.title)
-    //                 }
-    //               >
-    //                 Edit
-    //               </button>
-    //               <button onClick={() => deleteTask(task.id)}>Delete</button>
-    //               <button
-    //                 onClick={() =>
-    //                   toggleTaskImportance(task.id, task.importance)
-    //                 }
-    //               >
-    //                 {task.importance ? "Unmark Important" : "Mark as Important"}
-    //               </button>
-    //             </div>
-    //           </>
-    //         )}
-    //       </li>
-    //     ))}
-    //   </ul>
-
-    //   {filteredTasks.length > 0 && (
-    //     <button onClick={deleteAllTasks} className="delete-all-button">
-    //       Delete All Tasks
-    //     </button>
-    //   )}
-
-    //   <button
-    //     onClick={() => setShowImportantTasks(!showImportantTasks)}
-    //     className="toggle-important-tasks-button"
-    //   >
-    //     {showImportantTasks ? "Hide Important Tasks" : "Show Important Tasks"}
-    //   </button>
-
-    //   {showImportantTasks && importantTasks.length > 0 && (
-    //     <div className="important-tasks-section">
-    //       <h2>Important Tasks</h2>
-    //       <ul className="important-tasks-list">
-    //         {importantTasks.map((task) => (
-    //           <li key={task.id} className="task-item">
-    //             <span className="task-text">
-    //               {task.title}: {task.task}
-    //             </span>
-    //           </li>
-    //         ))}
-    //       </ul>
-    //     </div>
-    //   )}
-    // </div>
   );
 }
 
