@@ -199,10 +199,10 @@ function App() {
                 onClick={() => toggleStar(task.id)}
               ></i>
 
-              <div className="task-details">
-                <p className="task-title">{task.title}</p>
-                <p className="task-description">{task.task}</p>
-              </div>
+<div className="task-details">
+  <p className={`task-title ${task.status ? "cut-off" : ""}`}>{task.title}</p>
+  <p className={`task-description ${task.status ? "cut-off" : ""}`}>{task.task}</p>
+</div>
 
               <button
                 className="pencil-icon"
